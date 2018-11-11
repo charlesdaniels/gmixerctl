@@ -1,7 +1,7 @@
 # gmixerctl
 
 gmixerctl is a GUI wrapper for the OpenBSD
-[`mxerctl`](https://man.openbsd.org/mixerctl) command. gmixerctl aims to have
+[`mixerctl`](https://man.openbsd.org/mixerctl) command. gmixerctl aims to have
 100% feature parity with mixerctl, and may add a few more convenience features
 in the future (such as setting sndiod flags).
 
