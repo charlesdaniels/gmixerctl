@@ -21,7 +21,7 @@ basic_controls = [
     "record.slaves"
 ]
 
-version = "0.0.2"
+version = "0.1.0"
 
 license = """
 Copyright (c) 2018, Charles Daniels (except where otherwise noted) 
