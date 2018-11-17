@@ -1,0 +1,4 @@
+0.1.0
+
+	* Add support for basic configuration of sndiod, mainly with a focus
+	  on the ability to switch audio devices.

@@ -28,11 +28,24 @@ appreciate help implementing the following features:
 * Changing the mixer device at run time (this may be a Tk limitation, but I'm
   not experienced enough with Tk at the moment)
 
-* Configuring `sndiod` flags (i.e. a menu for running `rcctl set sndiod flags
-  -f rsnd/X ; rcctl restart sndiod`)
+* ~~Configuring `sndiod` flags (i.e. a menu for running `rcctl set sndiod flags
+  -f rsnd/X ; rcctl restart sndiod`)~~
+
+	* Support added in 0.1.0
 
 * An elegant solution for rendering enum type controls with only the choices
   on and off as checkboxes, rather than dropdowns.
+
+## Known Issues
+
+* Configuring sndiod requires giving the user running gmixerctl access to run
+  `/usr/sbin/rcctl` as root. This is overly broad, but I am unsure of the
+  correct way to handle this, since limiting arguments with `doas.conf`
+  requires knowing the exact set of arguments in advance.
+
+* The information displayed in the "sndiod" tab does not update once the
+  application has started.
+
 
 ## Rationale
 
