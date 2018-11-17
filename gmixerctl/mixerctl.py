@@ -3,6 +3,7 @@ import logging
 import subprocess
 
 from . import util
+from . import constants
 
 def parse_line(line):
     """parse_line
@@ -57,7 +58,8 @@ def get_state():
     Get the current mixer state.
     """
 
-    raw = subprocess.check_output(["mixerctl", "-v"], stderr=subprocess.STDOUT)
+    raw = subprocess.check_output(["mixerctl", "-f", constants.mixer_device,
+        "-v"], stderr=subprocess.STDOUT)
     raw = raw.decode()
 
     control = {}
@@ -79,6 +81,8 @@ def set_value(control, value):
     :param value:
     """
     logging.debug("setting {} = {}".format(control, value))
-    raw = subprocess.check_output(["mixerctl", "{}={}".format(control, value)],
+    raw = subprocess.check_output(
+            ["mixerctl", "-f", constants.mixer_device,
+                "{}={}".format(control, value)],
             stderr=subprocess.STDOUT)
     logging.debug("mixerctl says {}".format(raw))

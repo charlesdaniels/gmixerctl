@@ -25,8 +25,10 @@ Contributions are more than welcome. If there is a feature you would like added
 to gmixerctl, please feel free to open a pull request. In particular, I would
 appreciate help implementing the following features:
 
-* Changing the mixer device at run time (this may be a Tk limitation, but I'm
-  not experienced enough with Tk at the moment)
+* ~~Changing the mixer device at run time (this may be a Tk limitation, but I'm
+  not experienced enough with Tk at the moment)~~
+
+	* Support added in 0.1.0
 
 * ~~Configuring `sndiod` flags (i.e. a menu for running `rcctl set sndiod flags
   -f rsnd/X ; rcctl restart sndiod`)~~

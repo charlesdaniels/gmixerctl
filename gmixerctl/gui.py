@@ -4,6 +4,7 @@ import tkinter.ttk as ttk
 import tkinter.messagebox
 import time
 import subprocess
+import glob
 
 from . import mixerctl
 from . import util
@@ -82,7 +83,17 @@ class SndiodButton(tkinter.Button):
                         "\n\nerror was:\n\n{}".format(e)
                     )
 
+class SetMixerDevice:
+    def __init__(this, parent):
+        this.parent = parent
 
+    def __call__(this, val):
+        # implement callback for setting mixer device
+
+        constants.mixer_device = val
+        logging.debug("updated mixer device to {}".format(val))
+        this.parent.destroy()
+        main()
 
 class MultiSelect(tkinter.Frame):
     # https://stackoverflow.com/a/34550169
@@ -126,7 +137,7 @@ class MultiSelect(tkinter.Frame):
         mixerctl.set_value(this.name, ",".join(
             [x for x in this.choices if this.choices[x].get() == 1]))
 
-def render_control(parent, control, tabs, tkvars):
+def render_control(parent, control, tabs, tkvars, row):
     name = control["name"]
 
 
@@ -136,7 +147,7 @@ def render_control(parent, control, tabs, tkvars):
             parent,
             text = name,
             width = constants.label_width)
-    text_widget.pack(side=tkinter.LEFT)
+    text_widget.grid(row = row, column = 0)
 
     # create a new callback object - we need to use the update_value
     # class so that mixerctl.set_value() knows what control we want
@@ -160,7 +171,7 @@ def render_control(parent, control, tabs, tkvars):
                 command = callback,
                 )
         #  scale.config(width = constants.control_width)
-        scale.pack(side=tkinter.RIGHT)
+        scale.grid(row = row, column = 1)
 
     elif control["type"] == "enum":
 
@@ -178,7 +189,7 @@ def render_control(parent, control, tabs, tkvars):
                 command = callback,
         )
         menu.config(width = constants.control_width)
-        menu.pack(side=tkinter.RIGHT)
+        menu.grid(row = row, column = 1)
 
     elif control["type"] == "set":
 
@@ -190,14 +201,14 @@ def render_control(parent, control, tabs, tkvars):
                     control["possible"],
                     tkvars[name].choices
             )
-            menu.pack(side=tkinter.RIGHT)
+            menu.grid(row = row, column = 1)
         else:
             menu = MultiSelect(
                     parent,
                     name,
                     control["possible"],
             )
-            menu.pack(side=tkinter.RIGHT)
+            menu.grid(row = row, column = 1)
             tkvars[name] = menu
 
 
@@ -222,6 +233,7 @@ def main():
     tkvars = {}
 
     # custom-build "basic" tab
+    row_counter = 0
     for name in controls:
 
         # only display the controls we have configured
@@ -237,9 +249,25 @@ def main():
             nb.add(tabs[tab_name], text=tab_name)
 
         # create the frame for this control
-        frame = ttk.Frame(tabs[tab_name])
-        render_control(frame, control, tabs, tkvars)
-        frame.pack()
+        render_control(tabs[tab_name], control, tabs, tkvars, row_counter)
+        row_counter += 1
+
+    # add mixer device selector to basic tab
+    dev_selector_label = tkinter.Label(tabs[tab_name],
+            text = "select mixer device")
+    dev_selector_label.grid(row = row_counter, column = 0)
+
+    callback = SetMixerDevice(root)
+    available_device = []
+    dev_selector_var = tkinter.StringVar()
+    dev_selector_var.set(constants.mixer_device)
+    mixer_dev_selector = tkinter.OptionMenu(
+            tabs[tab_name],
+            dev_selector_var,
+            *list(glob.glob("/dev/mixer*")),
+            command = callback,
+        )
+    mixer_dev_selector.grid(row = row_counter, column = 1)
 
 
     # sndiod control tab
@@ -286,6 +314,7 @@ def main():
 
 
     # automatically generate the rest of the tabs
+    row_counter = 0
     for name in controls:
         control = controls[name]
 
@@ -296,9 +325,8 @@ def main():
             nb.add(tabs[tab_name], text=tab_name)
 
         # create the frame for this control
-        frame = ttk.Frame(tabs[tab_name])
-        render_control(frame, control, tabs, tkvars)
-        frame.pack()
+        render_control(tabs[tab_name], control, tabs, tkvars, row_counter)
+        row_counter += 1
 
     # add about tab
     about = ttk.Frame(nb)

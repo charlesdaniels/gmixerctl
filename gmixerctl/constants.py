@@ -8,6 +8,8 @@ control_width = 30
 
 log_level = logging.DEBUG
 
+mixer_device = "/dev/mixer"
+
 # control names to appear in the basic tab
 basic_controls = [
     "outputs.master",

@@ -1,4 +1,10 @@
 0.1.0
 
-	* Add support for basic configuration of sndiod, mainly with a focus
+	* Added support for basic configuration of sndiod, mainly with a focus
 	  on the ability to switch audio devices.
+
+	* Switched to using tkinter grids, rather than packed frames for layout,
+	  leading to a more visually appealing widget alignment.
+
+	* Added support for switching mixer devices via the "basic" tab by
+	  re-starting the application in-place.
