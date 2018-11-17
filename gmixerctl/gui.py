@@ -1,11 +1,14 @@
 import logging
 import tkinter
 import tkinter.ttk as ttk
+import tkinter.messagebox
 import time
+import subprocess
 
 from . import mixerctl
 from . import util
 from . import constants
+from . import sndiod
 
 def update_state(root, tkvars):
     """update_state
@@ -48,6 +51,38 @@ class update_value:
             this.first = False
         else:
             mixerctl.set_value(this.name, val)
+
+class SndiodButton(tkinter.Button):
+    # button which check sndio checkboxes and runs an appropriate
+    # rcctl command.
+
+    def __init__(this, parent, text):
+        tkinter.Button.__init__(this, parent, text=text, command = this.on_press)
+        this.parent = parent
+
+        # each element is (var, device)
+        this.watchvars = []
+        this.flags = ""
+
+    def on_press (this):
+        cmd = "doas -n /usr/sbin/rcctl set sndiod flags "
+        cmd = cmd + this.flags
+        cmd = cmd + ' '.join(["-f {}".format(x[1]) for x in this.watchvars if x[0].get() == 1])
+        logging.debug("generated rcctl command {}".format(cmd))
+
+        try:
+            subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
+            subprocess.check_output("doas -n /usr/sbin/rcctl restart sndiod".split(), stderr=subprocess.STDOUT)
+        except Exception as e:
+            tkinter.messagebox.showwarning(
+                        "Apply Changes",
+                        "Failed to apply rcctl flags. Maybe you need to add" +
+                        "\n\npermit nopass youruser as root cmd /usr/sbin/rcctl" +
+                        "\n\nto /etc/doas.conf ?" +
+                        "\n\nerror was:\n\n{}".format(e)
+                    )
+
+
 
 class MultiSelect(tkinter.Frame):
     # https://stackoverflow.com/a/34550169
@@ -205,6 +240,49 @@ def main():
         frame = ttk.Frame(tabs[tab_name])
         render_control(frame, control, tabs, tkvars)
         frame.pack()
+
+
+    # sndiod control tab
+    tab_name = "sndiod"
+    row_counter = 0
+    tabs[tab_name] = ttk.Frame(nb)
+    nb.add(tabs[tab_name], text=tab_name)
+
+    # allow editing non-device flags
+    current_flags, current_devices = sndiod.get_sndiod_flags()
+
+    entry_label = ttk.Label(tabs[tab_name], text="sndiod flags")
+    entry_label.grid(row = row_counter, column = 0)
+
+    entry_box = ttk.Entry(tabs[tab_name])
+    entry_box.insert(0, current_flags)
+    entry_box.grid(row = row_counter, column = 1)
+
+    row_counter += 1
+
+    # button to apply settings
+    sndiod_button = SndiodButton(tabs[tab_name], text="Apply")
+    sndiod_button.flags = current_flags
+
+    # check boxes for each device
+    rsnd_buttons = []
+    for device in sndiod.enumerate_rsnd_dev():
+        tkvars[device] = tkinter.IntVar()
+        if device in current_devices:
+            tkvars[device].set(1)
+        else:
+            tkvars[device].set(0)
+
+        rsnd_buttons.append(
+                tkinter.Checkbutton(tabs[tab_name],
+                    text=device, variable=tkvars[device])
+            )
+        rsnd_buttons[-1].grid(column = 0, row = row_counter)
+        row_counter += 1
+
+        sndiod_button.watchvars.append((tkvars[device], device))
+
+    sndiod_button.grid(row = row_counter, column = 0)
 
 
     # automatically generate the rest of the tabs

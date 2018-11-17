@@ -6,7 +6,7 @@ update_interval = 250
 label_width = 20
 control_width = 30
 
-log_level = logging.INFO
+log_level = logging.DEBUG
 
 # control names to appear in the basic tab
 basic_controls = [
