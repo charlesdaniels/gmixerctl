@@ -8,9 +8,18 @@ in the future (such as setting sndiod flags).
 gmixerctl is written in in Python3 with tkinter, and operates by wrapping
 the mixerctl command itself.
 
+## Key Features
+
+* Full functionality of `mixerctl` is exposed as a GUI
+
+* Robust against differing output options across different mixer devices
+
+* Support for changing `rsnd` device and `sndiod` flags
+
 ## Screenshots
 
 ![](screenshots/basic.png)
+![](screenshots/sndiod.png)
 ![](screenshots/outputs.png)
 
 ## Installation
