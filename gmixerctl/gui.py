@@ -231,6 +231,7 @@ def main():
 
     tabs = {}
     tkvars = {}
+    tab_name = "basic"
 
     # custom-build "basic" tab
     row_counter = 0
@@ -251,6 +252,9 @@ def main():
         # create the frame for this control
         render_control(tabs[tab_name], control, tabs, tkvars, row_counter)
         row_counter += 1
+
+    if "basic" not in tabs:
+        tkinter.messagebox.showerror("Error", constants.basic_error)
 
     # add mixer device selector to basic tab
     dev_selector_label = tkinter.Label(tabs[tab_name],

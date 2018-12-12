@@ -1,6 +1,7 @@
 import os
 import logging
 import subprocess
+import re
 
 from . import util
 from . import constants
@@ -13,13 +14,19 @@ def parse_line(line):
     :param line:
     """
 
+    if len(line.split("=")) != 2:
+        logging.warning(
+                "don't know what to do with line '{}', no '='".format(line))
+        return (line, {})
+
     name = line.split("=")[0]
-    rest = line.split("=")[1]
+    rest = line.split("=")[1].strip()
 
     state = {}
     state["name"] = name
 
-    if "[" in rest:
+    # enum case, i.e. off [ off on ]
+    if re.match("^[a-zA-Z0-9:-]+\s+\[[a-zA-Z0-9 :-]+\]$", rest):
         state["type"] = "enum"
         state["current"] = rest.split("[")[0].strip()
 
@@ -30,7 +37,8 @@ def parse_line(line):
             else:
                 state["possible"].append(val)
 
-    elif "{" in rest:
+    # set case, i.e. hp  { spkr hp }
+    elif re.match("((^[a-zA-Z0-9,:-]+\s+)|^)\{[a-zA-Z0-9 :-]+\}$", rest):
         state["type"] = "set"
         rest = rest.replace("}", "")
         state["current"] = tuple(rest.split("{")[0].strip().split(","))
@@ -42,13 +50,30 @@ def parse_line(line):
             else:
                 state["possible"].append(val)
 
-    else:
+    # value case, single int value
+    elif re.match("^[0-9]+$", rest):
         state["type"] = "value"
-        if "," in rest:
-            state["current"] = tuple((int(x) for x in rest.split(",")))
-        else:
-            state["current"] = int(rest)
+        state["current"] = int(rest)
 
+    # value case, pair of int values
+    elif re.match("^[0-9]+[,][0-9]+$", rest):
+        state["type"] = "value"
+        state["current"] = tuple((int(x) for x in rest.split(",")))
+
+    # value case, single int value, with annotation
+    elif re.match("^[0-9]+\s+[a-zA-Z]+$", rest):
+        state["type"] = "value"
+        state["current"] = int(rest.split(' ')[0])
+
+    # value case, pair of int values, with annotation
+    elif re.match("^[0-9]+[,][0-9]+\s+[a-zA-Z]+$", rest):
+        state["type"] = "value"
+        rest = rest.split(' ')[0]
+        state["current"] = tuple((int(x) for x in rest.split(",")))
+
+    else:
+        logging.warning("unhanded format for '{}', giving up".format(rest))
+        return (line, {})
 
     return name, state
 
@@ -70,6 +95,12 @@ def get_state():
             continue
 
         key, val = parse_line(line)
+
+        if len(val.keys()) == 0:
+            logging.warning(
+                "discarding key '{}' due to empty value".format(key))
+            continue
+
         control[key] = val
 
     return control

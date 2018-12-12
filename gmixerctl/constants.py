@@ -10,6 +10,8 @@ log_level = logging.DEBUG
 
 mixer_device = "/dev/mixer"
 
+project_homepage = "https://github.com/charlesdaniels/gmixerctl"
+
 # control names to appear in the basic tab
 basic_controls = [
     "outputs.master",
@@ -21,10 +23,10 @@ basic_controls = [
     "record.slaves"
 ]
 
-version = "0.1.0"
+version = "0.1.1"
 
 license = """
-Copyright (c) 2018, Charles Daniels (except where otherwise noted) 
+Copyright (c) 2018, Charles Daniels (except where otherwise noted)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,3 +55,13 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
+
+basic_error = """
+Something is wrong.
+
+If you see this message, one of the assumptions gmixerctl makes about your
+audio setup is so fundamentally wrong that it can't generate a "basic"
+tab for you. Either this is a bug in gmixerctl, or a problem with your system.
+
+Please report this issue on the gmixerctl homepage: {}
+""".format(project_homepage)
