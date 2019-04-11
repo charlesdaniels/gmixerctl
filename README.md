@@ -1,3 +1,7 @@
+**REPOSITORY MOVED**
+
+[This project is now hosted on sourcehut.](https://git.sr.ht/~charles/gmixerctl)
+
 # gmixerctl
 
 gmixerctl is a GUI wrapper for the OpenBSD
